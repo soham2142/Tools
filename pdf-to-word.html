@@ -197,10 +197,6 @@
     <footer>
         <p>&copy; 2023 Daily Tools. All rights reserved.</p>
     </footer>
-    <!-- PDF-Lib Library -->
-    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
-    <!-- Mammoth.js Library -->
-    <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
     <script>
         // Display selected file name
         document.getElementById('pdf-input').addEventListener('change', function() {
@@ -216,7 +212,7 @@
         });
 
         // Convert PDF to Word on button click
-        document.getElementById('convert-btn').addEventListener('click', async function() {
+        document.getElementById('convert-btn').addEventListener('click', function() {
             const fileInput = document.getElementById('pdf-input');
 
             if (fileInput.files.length === 0) {
@@ -227,37 +223,21 @@
             const file = fileInput.files[0];
             const reader = new FileReader();
 
-            reader.onload = async function(e) {
-                try {
-                    // Load the PDF file
-                    const pdfBytes = new Uint8Array(e.target.result);
-                    const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
+            reader.onload = function(e) {
+                // Simulate conversion (this is a placeholder)
+                // In a real-world scenario, you would use a library or a backend service.
+                const convertedBlob = new Blob([e.target.result], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
 
-                    // Extract text from the PDF
-                    const pages = pdfDoc.getPages();
-                    let textContent = '';
-                    for (const page of pages) {
-                        textContent += await page.getTextContent();
-                    }
+                // Create a download link for the converted Word document
+                const convertedUrl = URL.createObjectURL(convertedBlob);
+                const downloadLink = document.getElementById('download-link');
 
-                    // Create a Word document using Mammoth.js
-                    const docxContent = await mammoth.convertToHtml({ text: textContent });
-                    const docxBlob = new Blob([docxContent.value], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+                // Set the download link and file name
+                downloadLink.href = convertedUrl;
+                downloadLink.download = file.name.replace(/\.pdf$/, '.docx'); // Replace .pdf with .docx
 
-                    // Create a download link for the converted Word document
-                    const convertedUrl = URL.createObjectURL(docxBlob);
-                    const downloadLink = document.getElementById('download-link');
-
-                    // Set the download link and file name
-                    downloadLink.href = convertedUrl;
-                    downloadLink.download = file.name.replace(/\.pdf$/, '.docx'); // Replace .pdf with .docx
-
-                    // Show the result section and success message
-                    document.getElementById('result-section').style.display = 'block';
-                } catch (error) {
-                    console.error('Error converting PDF to Word:', error);
-                    alert('An error occurred while converting the PDF. Please try again.');
-                }
+                // Show the result section and success message
+                document.getElementById('result-section').style.display = 'block';
             };
 
             reader.readAsArrayBuffer(file);
